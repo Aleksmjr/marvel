@@ -5,6 +5,7 @@ import mjolnir from '../../resources/img/mjolnir.png';
 import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
+import errorGif from '../errorMessage/error.gif';
 class RandomChar extends Component {
   state = {
     char: {},
@@ -86,7 +87,14 @@ const View = ({ char }) => {
 
   return (
     <div className="randomchar__block">
-      <img src={thumbnail} alt="Random character" className="randomchar__img" />
+      <img
+        src={thumbnail}
+        alt={name}
+        onError={(e) => {
+          e.target.src = errorGif;
+        }}
+        className="randomchar__img"
+      />
       <div className="randomchar__info">
         <p className="randomchar__name">{name}</p>
         <p className="randomchar__descr">{description}</p>

@@ -4,7 +4,7 @@ import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton';
-
+import errorGif from '../errorMessage/error.gif';
 class CharInfo extends Component {
   state = {
     char: null,
@@ -74,7 +74,13 @@ const View = ({ char }) => {
   return (
     <>
       <div className="char__basics">
-        <img src={thumbnail} alt={name} />
+        <img
+          src={thumbnail}
+          alt={name}
+          onError={(e) => {
+            e.target.src = errorGif;
+          }}
+        />
         <div>
           <div className="char__info-name">{name}</div>
           <div className="char__btns">

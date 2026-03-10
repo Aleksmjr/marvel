@@ -1,7 +1,7 @@
 import './charList.scss';
 import { Component } from 'react';
 import MarvelService from '../../services/MarvelService';
-
+import errorGif from '../errorMessage/error.gif';
 class CharList extends Component {
   state = {
     charList: [],
@@ -42,7 +42,13 @@ class CharList extends Component {
               onClick={() => this.props.onCharSelected(char.id)}
               className="char__item"
             >
-              <img src={char.thumbnail} alt="abyss" />
+              <img
+                src={char.thumbnail}
+                alt={char.name}
+                onError={(e) => {
+                  e.target.src = errorGif;
+                }}
+              />
               <div className="char__name">{char.name}</div>
             </li>
           ))}

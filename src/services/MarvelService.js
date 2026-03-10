@@ -1,3 +1,5 @@
+import errorGif from '../components/errorMessage/error.gif';
+
 class MarvelService {
   _apiBase = process.env.REACT_APP_API_BASE;
   _apiKey = process.env.REACT_APP_API_KEY;
@@ -45,7 +47,10 @@ class MarvelService {
       id: char.id,
       name: char.name,
       description: description,
-      thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension,
+      thumbnail:
+        char?.thumbnail?.path && char?.thumbnail?.extension
+          ? `${char.thumbnail.path}.${char.thumbnail.extension}`
+          : errorGif,
       homepage: char.urls[0].url,
       wiki: char.urls[1].url,
       comics: char.comics.items,
