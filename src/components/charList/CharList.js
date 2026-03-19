@@ -2,6 +2,8 @@ import './charList.scss';
 import { Component } from 'react';
 import MarvelService from '../../services/MarvelService';
 import errorGif from '../errorMessage/error.gif';
+import PropTypes from 'prop-types';
+
 class CharList extends Component {
   state = {
     charList: [],
@@ -10,6 +12,7 @@ class CharList extends Component {
     newItemLoading: false,
     offset: 0,
     charEnded: false,
+    selectedCharId: null,
   };
   marvelService = new MarvelService();
 
@@ -53,16 +56,22 @@ class CharList extends Component {
     });
   };
 
+  onCharSelected = (charId) => {
+    this.setState({ selectedCharId: charId });
+    this.props.onCharSelected(charId);
+  };
+
   render() {
-    const { charList, offset, newItemLoading, charEnded } = this.state;
+    const { charList, offset, newItemLoading, charEnded, selectedCharId } =
+      this.state;
     return (
       <div className="char__list">
         <ul className="char__grid">
           {charList.map((char) => (
             <li
               key={char.id}
-              onClick={() => this.props.onCharSelected(char.id)}
-              className="char__item"
+              onClick={() => this.onCharSelected(char.id)}
+              className={`char__item ${selectedCharId === char.id ? 'char__item_selected' : ''}`}
             >
               <img
                 src={char.thumbnail}
@@ -87,5 +96,9 @@ class CharList extends Component {
     );
   }
 }
+
+CharList.propTypes = {
+  onCharSelected: PropTypes.func.isRequired,
+};
 
 export default CharList;
