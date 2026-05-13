@@ -1,101 +1,107 @@
 import './charList.scss';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import MarvelService from '../../services/MarvelService';
 import errorGif from '../errorMessage/error.gif';
 import PropTypes from 'prop-types';
 
-class CharList extends Component {
-  state = {
-    charList: [],
-    loading: true,
-    error: false,
-    newItemLoading: false,
-    offset: 0,
-    charEnded: false,
-    selectedCharId: null,
-  };
-  marvelService = new MarvelService();
+const CharList = ({ onCharSelected }) => {
+  const [charList, setCharList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [newItemLoading, setNewItemLoading] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [charEnded, setCharEnded] = useState(false);
+  const [selectedCharId, setSelectedCharId] = useState(null);
 
-  componentDidMount() {
-    this.onRequest();
-  }
+  const marvelService = new MarvelService();
 
-  onRequest = (offset) => {
-    this.onCharListLoading();
-    this.marvelService
+  useEffect(() => {
+    onRequest(0);
+  }, []);
+
+  const onRequest = (offset = 0) => {
+    onCharListLoading();
+
+    marvelService
       .getAllCharacters(offset)
-      .then(this.onCharListLoaded)
-      .catch(this.onError);
+      .then(onCharListLoaded)
+      .catch(onError);
   };
 
-  onCharListLoading = () => {
-    this.setState({
-      newItemLoading: true,
-    });
+  const onCharListLoading = () => {
+    setNewItemLoading(true);
   };
 
-  onCharListLoaded = (newCharList) => {
+  const onCharListLoaded = (newCharList) => {
     let ended = false;
+
     if (newCharList.length < 9) {
       ended = true;
     }
 
-    this.setState(({ offset, charList }) => ({
-      charList: [...charList, ...newCharList],
-      loading: false,
-      newItemLoading: false,
-      offset: offset + 9,
-      charEnded: ended,
-    }));
+    setCharList((prevList) => [...prevList, ...newCharList]);
+    setLoading(false);
+    setNewItemLoading(false);
+    setOffset((prevOffset) => prevOffset + 9);
+    setCharEnded(ended);
   };
 
-  onError = () => {
-    this.setState({
-      error: true,
-      loading: false,
-    });
+  const onError = () => {
+    setError(true);
+    setLoading(false);
+    setNewItemLoading(false);
   };
 
-  onCharSelected = (charId) => {
-    this.setState({ selectedCharId: charId });
-    this.props.onCharSelected(charId);
+  const onCharClick = (charId) => {
+    setSelectedCharId(charId);
+    onCharSelected(charId);
   };
 
-  render() {
-    const { charList, offset, newItemLoading, charEnded, selectedCharId } =
-      this.state;
-    return (
-      <div className="char__list">
-        <ul className="char__grid">
-          {charList.map((char) => (
-            <li
-              key={char.id}
-              onClick={() => this.onCharSelected(char.id)}
-              className={`char__item ${selectedCharId === char.id ? 'char__item_selected' : ''}`}
-            >
-              <img
-                src={char.thumbnail}
-                alt={char.name}
-                onError={(e) => {
-                  e.target.src = errorGif;
-                }}
-              />
-              <div className="char__name">{char.name}</div>
-            </li>
-          ))}
-        </ul>
-        <button
-          className="button button__main button__long"
-          disabled={newItemLoading}
-          onClick={() => this.onRequest(offset)}
-          style={{ display: charEnded ? 'none' : 'block' }}
-        >
-          <div className="inner">load more</div>
-        </button>
-      </div>
-    );
+  if (error) {
+    return <img src={errorGif} alt="error" />;
   }
-}
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="char__list">
+      <ul className="char__grid">
+        {charList.map((char) => (
+          <li
+            key={char.id}
+            onClick={() => onCharClick(char.id)}
+            className={`char__item ${
+              selectedCharId === char.id ? 'char__item_selected' : ''
+            }`}
+          >
+            <img
+              src={char.thumbnail}
+              alt={char.name}
+              onError={(e) => {
+                e.target.src = errorGif;
+              }}
+            />
+
+            <div className="char__name">{char.name}</div>
+          </li>
+        ))}
+      </ul>
+
+      <button
+        className="button button__main button__long"
+        disabled={newItemLoading}
+        onClick={() => onRequest(offset)}
+        style={{ display: charEnded ? 'none' : 'block' }}
+      >
+        <div className="inner">
+          {newItemLoading ? 'loading...' : 'load more'}
+        </div>
+      </button>
+    </div>
+  );
+};
 
 CharList.propTypes = {
   onCharSelected: PropTypes.func.isRequired,
